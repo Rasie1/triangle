@@ -3,16 +3,14 @@
 #include <array>
 #include <utility>
 #include <cmath>
+#include <algorithm>
 
 namespace Triangle {
 
-namespace DefaultConstants
-{
-    const float Side = 173.20508075689f;
-    const float Height = 150.f;
-    const float HeightK = 0.86692549378f;
-    const float Center = 0.5773502f;
-}
+const float Side = 173.20508075689f;
+const float Height = 150.f;
+const float HeightK = 0.86692549378f;
+const float Center = 0.5773502f;
 
 struct Pos 
 {
@@ -49,8 +47,8 @@ inline Vec2 gridToWorld(
 inline Vec2 gridToWorld(const Pos& pos) 
 {
     return Vec2{
-        pos.x * DefaultConstants::Side + pos.y * DefaultConstants::Side / 2.f,
-        pos.y * DefaultConstants::Height
+        pos.x * Side + pos.y * Side / 2.f,
+        pos.y * Height
     };
 }
 
@@ -67,8 +65,8 @@ inline Pos worldToGrid(
 
 inline Pos worldToGrid(const Vec2& pos) 
 {
-    float y = std::get<1>(pos) / DefaultConstants::Height;
-    float x = std::get<0>(pos) / DefaultConstants::Side - y / 2.f;
+    float y = std::get<1>(pos) / Height;
+    float x = std::get<0>(pos) / Side - y / 2.f;
     bool s = (x - floor(x) + y - floor(y)) > 1.f;
     return Pos{int(x), int(y), int(s)};
 }
@@ -131,6 +129,29 @@ inline int distance(const Pos& a, const Pos& b)
     auto dy = a.y - b.y;
     auto ds = a.s - b.s;
     return abs(dx) + abs(dy) + abs(dx + dy + ds);
+}
+
+inline int triangleDistanceDiagonal(const Pos& a, const Pos& b)
+{
+    auto dx = a.x - b.x;
+    auto dy = a.y - b.y;
+    auto ds = a.s - b.s;
+    auto adx = abs(dx);
+    auto ady = abs(dy);
+    auto adz = abs(dx + dy + ds);
+    auto m = std::min({adx, ady, adz});
+    return adx + ady + adz - m;
+}
+
+inline int triangleDistanceFullDiagonal(const Pos& a, const Pos& b)
+{
+    auto dx = a.x - b.x;
+    auto dy = a.y - b.y;
+    auto ds = a.s - b.s;
+    auto adx = abs(dx);
+    auto ady = abs(dy);
+    auto adz = abs(dx + dy + ds);
+    return std::max({adx, ady, adz});
 }
 
 }
